@@ -3,3 +3,5 @@ dist
 raw
 .DS_Store
 *.log
+
+.vercel

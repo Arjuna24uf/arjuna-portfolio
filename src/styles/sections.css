@@ -1763,4 +1763,96 @@
   .form-actions .btn {
     width: 100%;
   }
+
+  .audio-btn {
+    bottom: 18px;
+    right: 18px;
+    padding: 7px 12px;
+  }
+  .audio-label {
+    font-size: 10px;
+  }
 }
+
+/* ============================================================
+   FLOATING AUDIO PLAYER
+   ============================================================ */
+.audio-btn {
+  position: fixed;
+  bottom: 26px;
+  right: 26px;
+  z-index: 95;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(14, 5, 7, 0.78);
+  border: 1px solid rgba(224, 16, 47, 0.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(224, 16, 47, 0.35);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+.audio-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--red-2);
+  background: rgba(26, 8, 12, 0.92);
+  box-shadow: 0 14px 34px -8px rgba(224, 16, 47, 0.55);
+}
+.audio-btn.is-playing {
+  border-color: rgba(224, 16, 47, 0.65);
+}
+.audio-wave {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+}
+.wave-bar {
+  width: 3px;
+  height: 4px;
+  border-radius: 3px;
+  background: var(--muted);
+  transition: height 0.25s, background 0.3s;
+}
+.audio-btn.is-playing .wave-bar {
+  background: var(--red-2);
+  box-shadow: 0 0 8px var(--red);
+  animation: waveMotion 1.2s ease-in-out infinite;
+}
+.audio-btn.is-playing .bar-1 {
+  animation-delay: 0s;
+}
+.audio-btn.is-playing .bar-2 {
+  animation-delay: 0.2s;
+}
+.audio-btn.is-playing .bar-3 {
+  animation-delay: 0.4s;
+}
+.audio-btn.is-playing .bar-4 {
+  animation-delay: 0.1s;
+}
+
+@keyframes waveMotion {
+  0%, 100% {
+    height: 4px;
+  }
+  50% {
+    height: 14px;
+  }
+}
+
+.audio-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+.audio-btn.is-playing .audio-label {
+  color: #fff;
+}
+

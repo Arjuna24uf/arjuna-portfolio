@@ -10,6 +10,7 @@ import Experience from './components/Experience'
 import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Contact from './components/Contact'
+import AudioPlayer from './components/AudioPlayer'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('home')
@@ -104,6 +105,7 @@ export default function App() {
       />
 
       <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
+      <AudioPlayer />
 
       <main>
         <Hero isMobile={isMobile} onNavigate={handleNavigate} />
