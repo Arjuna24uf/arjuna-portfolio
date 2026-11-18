@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 
 export default function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [userInteracted, setUserInteracted] = useState(false)
   const audioRef = useRef(null)
+  const lockedByUserRef = useRef(false)
 
   useEffect(() => {
     const audio = audioRef.current
@@ -12,50 +12,66 @@ export default function AudioPlayer() {
     audio.volume = 0.45
     audio.loop = true
 
-    // Attempt auto-play on first user interaction anywhere on the page
-    const handleFirstInteraction = () => {
-      if (!userInteracted && audio.paused) {
+    const cleanup = () => {
+      window.removeEventListener('pointerdown', handleFirstInteraction, true)
+      window.removeEventListener('keydown', handleFirstInteraction, true)
+    }
+
+    const handleFirstInteraction = (e) => {
+      if (lockedByUserRef.current) {
+        cleanup()
+        return
+      }
+      // If user tapped the audio toggle button itself, let togglePlay handle it cleanly
+      if (e.target && e.target.closest && e.target.closest('.audio-btn')) {
+        return
+      }
+      if (audio.paused) {
         audio
           .play()
           .then(() => {
-            setIsPlaying(true)
-            setUserInteracted(true)
+            lockedByUserRef.current = true
+            cleanup()
           })
           .catch(() => {
-            // Browser policy prevented autoplay
+            // Keep listeners active until a valid user gesture succeeds
           })
+      } else {
+        cleanup()
       }
     }
 
-    window.addEventListener('click', handleFirstInteraction, { once: true })
-    window.addEventListener('touchstart', handleFirstInteraction, { once: true })
+    window.addEventListener('pointerdown', handleFirstInteraction, true)
+    window.addEventListener('keydown', handleFirstInteraction, true)
 
-    return () => {
-      window.removeEventListener('click', handleFirstInteraction)
-      window.removeEventListener('touchstart', handleFirstInteraction)
-    }
-  }, [userInteracted])
+    return cleanup
+  }, [])
 
   const togglePlay = (e) => {
     e.stopPropagation()
     const audio = audioRef.current
     if (!audio) return
 
-    setUserInteracted(true)
-    if (isPlaying) {
+    lockedByUserRef.current = true
+    if (!audio.paused) {
       audio.pause()
-      setIsPlaying(false)
     } else {
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch((err) => console.log('Audio playback error:', err))
+      audio.volume = 0.45
+      audio.play().catch((err) => console.error('Audio playback failed:', err))
     }
   }
 
   return (
     <>
-      <audio ref={audioRef} src="/audio/bgm.mp3" preload="metadata" />
+      <audio
+        ref={audioRef}
+        src="/audio/bgm.mp3"
+        preload="auto"
+        loop
+        playsInline
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      />
 
       <button
         type="button"
@@ -64,7 +80,7 @@ export default function AudioPlayer() {
         aria-label={isPlaying ? 'Mute background sound' : 'Play background sound'}
         title={isPlaying ? 'Pause Sound' : 'Play Sound'}
       >
-        <span className="audio-wave">
+        <span className="audio-wave" aria-hidden="true">
           <span className="wave-bar bar-1" />
           <span className="wave-bar bar-2" />
           <span className="wave-bar bar-3" />
